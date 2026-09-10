@@ -1,16 +1,24 @@
 """
 تطبيق تحديد قطع غيار السيارات
 Car Spare Parts Identifier Application
+Version: Scenario 1.0
 """
 
-from app import create_app
-from app.database import init_db
+import os
+from app import create_app, db
+from app.models import User, CarType, SparePart, SearchHistory
+
+app = create_app()
+
+@app.shell_context_processor
+def make_shell_context():
+    return {'db': db, 'User': User, 'CarType': CarType, 
+            'SparePart': SparePart, 'SearchHistory': SearchHistory}
 
 if __name__ == '__main__':
-    app = create_app()
-    
-    # إنشاء قاعدة البيانات عند التشغيل الأول
     with app.app_context():
-        init_db()
+        db.create_all()
     
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=os.environ.get('FLASK_ENV') == 'development', 
+            host='0.0.0.0', port=port)
